@@ -73,6 +73,13 @@ func update(c *gin.Context) {
 		return
 	}
 
+	if len(queue) == 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"msg": "no process is in the queue",
+		})
+		return
+	}
+
 	// default method is shortest job first, and default is preemptive
 	// method := "SJF"
 	// preemptive := "true"
