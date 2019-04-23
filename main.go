@@ -19,7 +19,7 @@ func main() {
 	router.Use(cors.Default())
 	router.POST("/addProcess", addProcess)
 	router.GET("/setClockNow", setClockNow)
-	router.GET("/setClockMax", setClockMax)
+	// router.GET("/setClockMax", setClockMax)
 	router.GET("/update", update)
 	router.GET("/getView", getView)
 	router.GET("/reset", reset)

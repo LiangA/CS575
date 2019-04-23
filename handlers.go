@@ -34,6 +34,8 @@ func addProcess(c *gin.Context) {
 		pid, priority, arrive, burst, burst, "ready",
 	})
 
+	clock.Max += burst
+
 	c.JSON(http.StatusOK, gin.H{
 		"msg": "add successfully",
 	})
@@ -54,25 +56,28 @@ func setClockNow(c *gin.Context) {
 	})
 }
 
-func setClockMax(c *gin.Context) {
-	for _, v := range queue {
-		clock.Max += v.Burst
-	}
-	msg := "clock max is set to " + strconv.Itoa(clock.Max)
-	c.JSON(http.StatusOK, gin.H{
-		"msg": msg,
-	})
-}
+// decided to comment this function. not only the max clock should be set when the process is added.
+// but this function is not a good design-- it doesn't have the elastic to use in different scenario
+// futher, it may cause unwanted effect, like mis-adding the max clock
+// func setClockMax(c *gin.Context) {
+// 	for _, v := range queue {
+// 		clock.Max += v.Burst
+// 	}
+// 	msg := "clock max is set to " + strconv.Itoa(clock.Max)
+// 	c.JSON(http.StatusOK, gin.H{
+// 		"msg": msg,
+// 	})
+// }
 
 func update(c *gin.Context) {
-	// if the clock is over the maximum, only send out message
-	if clock.Now > clock.Max {
+	// if the clock is reach or over the maximum, send out message
+	if clock.Now >= clock.Max {
 		c.JSON(http.StatusOK, gin.H{
 			"msg": "all process is done",
 		})
 		return
 	}
-
+	// if there are no process in queue, send out message
 	if len(queue) == 0 {
 		c.JSON(http.StatusOK, gin.H{
 			"msg": "no process is in the queue",
@@ -194,7 +199,9 @@ func getView(c *gin.Context) {
 
 func reset(c *gin.Context) {
 	queue = queue[0:0]
+	clock.Max = 0
+	clock.Now = 0
 	c.JSON(http.StatusOK, gin.H{
-		"msg": "process queue reset",
+		"msg": "process queue and clock are reset",
 	})
 }
