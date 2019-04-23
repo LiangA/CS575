@@ -191,3 +191,10 @@ func getView(c *gin.Context) {
 		"clock now": clock.Now,
 	})
 }
+
+func reset(c *gin.Context) {
+	queue = queue[0:0]
+	c.JSON(http.StatusOK, gin.H{
+		"msg": "process queue reset",
+	})
+}

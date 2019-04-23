@@ -22,6 +22,7 @@ func main() {
 	router.GET("/setClockMax", setClockMax)
 	router.GET("/update", update)
 	router.GET("/getView", getView)
+	router.GET("/reset", reset)
 	router.Run()
 }
 
