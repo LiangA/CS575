@@ -73,7 +73,7 @@ func update(c *gin.Context) {
 	// if the clock is reach or over the maximum, send out message
 	if clock.Now >= clock.Max {
 		c.JSON(http.StatusOK, gin.H{
-			"msg": "all process is done",
+			"msg": "all processes are done",
 		})
 		return
 	}
