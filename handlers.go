@@ -34,7 +34,7 @@ func addProcess(c *gin.Context) {
 		pid, priority, arrive, burst, burst, "ready",
 	})
 
-	clock.Max += burst
+	clock.Max += burst + arrive
 
 	c.JSON(http.StatusOK, gin.H{
 		"msg": "add successfully",
@@ -70,8 +70,8 @@ func setClockNow(c *gin.Context) {
 // }
 
 func update(c *gin.Context) {
-	// if the clock is reach or over the maximum, send out message
-	if clock.Now >= clock.Max {
+	// if the all process are finished, send out message
+	if allDoen() {
 		c.JSON(http.StatusOK, gin.H{
 			"msg": "all processes are done",
 		})
@@ -135,6 +135,13 @@ func update(c *gin.Context) {
 	})
 }
 
+func allDoen() bool {
+	for i := 0; i < len(queue); i++ {
+		if queue[i].State != "finished" {return false}
+	}
+	return true
+}
+
 // this function picks the next process from ready to running
 func nextProcessIn(method string) {
 	switch method {
@@ -143,7 +150,7 @@ func nextProcessIn(method string) {
 		// if there are two or more processes have the same remain time and they are all the shortest,
 		// the first iterated one will be run
 		for i := 0; i < len(queue); i++ {
-			if queue[i].Remain > 0 && queue[i].Remain < min {
+			if queue[i].Remain > 0 && queue[i].Remain < min && queue[i].Arrive <= clock.Now {
 				key = i
 				min = queue[i].Remain
 			}
@@ -158,7 +165,7 @@ func nextProcessIn(method string) {
 		// if there are two or more processes have the same arriving time and they are all the earliest,
 		// the first iterated one will be run
 		for i := 0; i < len(queue); i++ {
-			if queue[i].Remain > 0 && queue[i].Arrive < min {
+			if queue[i].Remain > 0 && queue[i].Arrive < min && queue[i].Arrive <= clock.Now {
 				key = i
 				min = queue[i].Arrive
 			}
@@ -173,7 +180,7 @@ func nextProcessIn(method string) {
 		// if there are two or more processes have the same arriving time and they are all the earliest,
 		// the first iterated one will be run
 		for i := 0; i < len(queue); i++ {
-			if queue[i].Remain > 0 && queue[i].Priority > max {
+			if queue[i].Remain > 0 && queue[i].Priority > max && queue[i].Arrive <= clock.Now {
 				key = i
 				max = queue[i].Priority
 			}
